@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="midnight">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>G11 Final Academic Tracker</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- THEME ENGINE --- */
+        :root {
+            --bg-body: #0f172a;
+            --bg-sidebar: #020617;
+            --bg-card: #1e293b;
+            --glass-border: 1px solid rgba(255, 255, 255, 0.1);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --primary: #6366f1;
+            --accent: #38bdf8;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #f43f5e;
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+            --font-main: 'Outfit', sans-serif;
+            --font-code: 'JetBrains Mono', monospace;
+            --chart-bg: #334155;
+        }
+
+        [data-theme="glass"] {
+            --bg-body: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%);
+            --bg-sidebar: rgba(255, 255, 255, 0.85);
+            --bg-card: rgba(255, 255, 255, 0.9);
+            --glass-border: 1px solid rgba(255, 255, 255, 0.6);
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --primary: #4f46e5;
+            --accent: #06b6d4;
+            --success: #059669;
+            --warning: #d97706;
+            --danger: #e11d48;
+            --shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+            --chart-bg: #e2e8f0;
+        }
+
+        [data-theme="forest"] {
+            --bg-body: #052e16;
+            --bg-sidebar: #022c22;
+            --bg-card: #14532d;
+            --glass-border: 1px solid rgba(255, 255, 255, 0.1);
+            --text-main: #f0fdf4;
+            --text-muted: #86efac;
+            --primary: #22c55e;
+            --accent: #4ade80;
+            --success: #22c55e;
+            --warning: #facc15;
+            --danger: #f87171;
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+            --chart-bg: #166534;
+        }
+
+        [data-theme="cyber"] {
+            --bg-body: #000;
+            --bg-sidebar: #050505;
+            --bg-card: #0a0a0a;
+            --glass-border: 1px solid #333;
+            --text-main: #00ff41;
+            --text-muted: #008f11;
+            --primary: #00ff41;
+            --accent: #d600ff;
+            --success: #00ff41;
+            --warning: #ffff00;
+            --danger: #ff003c;
+            --shadow: 0 0 20px rgba(0, 255, 65, 0.1);
+            --chart-bg: #111;
+        }
+
+        [data-theme="sunset"] {
+            --bg-body: linear-gradient(135deg, #4a044e 0%, #2e1065 100%);
+            --bg-sidebar: rgba(20, 10, 40, 0.9);
+            --bg-card: rgba(40, 20, 60, 0.8);
+            --glass-border: 1px solid rgba(255, 255, 255, 0.1);
+            --text-main: #fbcfe8;
+            --text-muted: #f472b6;
+            --primary: #e879f9;
+            --accent: #facc15;
+            --success: #34d399;
+            --warning: #fb923c;
+            --danger: #fb7185;
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+            --chart-bg: #701a75;
+        }
+
+        * { box-sizing: border-box; transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease, transform 0.2s ease, opacity 0.3s ease, width 0.3s ease; }
+
+        body {
+            font-family: var(--font-main);
+            background: var(--bg-body);
+            color: var(--text-main);
+            margin: 0;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* --- SIDEBAR --- */
+        .sidebar {
+            width: 280px;
+            background: var(--bg-sidebar);
+            border-right: var(--glass-border);
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            flex-shrink: 0;
+            z-index: 200;
+        }
+
+        .brand {
+            font-size: 1.4rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            color: var(--primary);
+            letter-spacing: -0.5px;
+            text-transform: uppercase;
+        }
+        .brand span { display:flex; align-items:center; gap:12px; }
+        .close-sidebar { display:none; background:none; border:none; color:var(--text-muted); font-size:1.1rem; cursor:pointer; }
+
+        .sidebar-search {
+            position: relative;
+            margin-bottom: 15px;
+        }
+        .sidebar-search input {
+            width: 100%;
+            padding: 10px 12px 10px 34px;
+            border-radius: 10px;
+            border: var(--glass-border);
+            background: rgba(125,125,125,0.08);
+            color: var(--text-main);
+            font-family: var(--font-main);
+            font-size: 0.85rem;
+        }
+        .sidebar-search input:focus { outline: 1px solid var(--primary); }
+        .sidebar-search i { position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--text-muted); font-size:0.8rem; }
+        .search-clear { position:absolute; right:10px; top:50%; transform:translateY(-50%); color:var(--text-muted); cursor:pointer; font-size:0.8rem; display:none; }
+
+        .nav-scroll { flex: 1; overflow-y: auto; padding-right: 5px; }
+        .nav-scroll::-webkit-scrollbar { width: 4px; }
+        .nav-scroll::-webkit-scrollbar-thumb { background: var(--text-muted); border-radius: 4px; opacity: 0.3; }
+
+        .nav-header {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            color: var(--text-muted);
+            margin: 25px 0 10px;
+            font-weight: 800;
+            border-bottom: 1px solid var(--glass-border);
+            padding-bottom: 5px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 14px;
+            border-radius: 10px;
+            cursor: pointer;
+            color: var(--text-muted);
+            font-weight: 600;
+            margin-bottom: 4px;
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+        }
+        .nav-item .nav-left { display:flex; align-items:center; }
+
+        .nav-item:hover {
+            background: rgba(125, 125, 125, 0.1);
+            color: var(--primary);
+            padding-left: 18px;
+        }
+
+        .nav-item.active {
+            background: var(--primary);
+            color: white !important;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .nav-item.active .nav-pct { color: white !important; }
+        .nav-item i { width: 24px; text-align: center; margin-right: 12px; }
+        .nav-pct { font-size: 0.7rem; font-family: var(--font-code); color: var(--text-muted); font-weight: 700; }
+
+        .sidebar-footer {
+            padding-top: 15px;
+            border-top: var(--glass-border);
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-align: center;
+        }
+
+        /* --- MAIN LAYOUT --- */
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            min-width: 0;
+        }
+
+        .header {
+            padding: 15px 40px;
+            background: var(--bg-card);
+            border-bottom: var(--glass-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 40;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            gap: 15px;
+        }
+        .header-left { display:flex; align-items:center; gap:15px; min-width:0; }
+        .hamburger { display:none; background:none; border:none; color:var(--text-main); font-size:1.3rem; cursor:pointer; }
+        .header h3 { white-space: nowrap; }
+
+        .controls { display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
+
+        .btn {
+            background: transparent;
+            border: var(--glass-border);
+            color: var(--text-main);
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn:hover { background: rgba(255,255,255,0.05); transform: translateY(-2px); }
+        .btn-primary { background: var(--primary); color: white; border: none; }
+        .btn-primary:hover { background: var(--accent); }
+        .btn-ghost-sm { padding: 5px 10px; font-size: 0.75rem; border-radius: 6px; }
+        .btn-danger-sm { padding: 5px 10px; font-size: 0.75rem; border-radius: 6px; color: var(--danger); border-color: var(--danger); }
+        .btn-danger-sm:hover { background: rgba(244,63,94,0.1); }
+
+        /* --- THEME PICKER --- */
+        .theme-panel {
+            position: absolute;
+            top: 70px;
+            right: 40px;
+            background: var(--bg-card);
+            border: var(--glass-border);
+            padding: 15px;
+            border-radius: 12px;
+            display: none;
+            flex-direction: column;
+            gap: 8px;
+            box-shadow: var(--shadow);
+            z-index: 100;
+            width: 160px;
+            animation: fadeIn 0.3s ease;
+        }
+        .theme-panel.open { display: flex; }
+        .theme-opt { padding: 8px; border-radius: 6px; cursor: pointer; text-align: center; font-weight: 600; font-size: 0.85rem; border:1px solid transparent; }
+        .theme-opt:hover { border-color: var(--primary); }
+
+        /* --- CONTENT --- */
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 40px;
+            scroll-behavior: smooth;
+            background: radial-gradient(circle at top right, rgba(99, 102, 241, 0.05), transparent 40%);
+        }
+
+        /* --- DASHBOARD STATS --- */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            padding: 25px;
+            border-radius: 16px;
+            border: var(--glass-border);
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .stat-card::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+        }
+
+        .stat-val { font-size: 3rem; font-weight: 800; color: var(--text-main); line-height: 1; margin-bottom: 5px; }
+        .stat-label { font-size: 0.8rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+
+        /* --- OVERVIEW BARS --- */
+        .overview-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            border: var(--glass-border);
+            box-shadow: var(--shadow);
+            padding: 25px 30px;
+            margin-bottom: 50px;
+        }
+        .overview-card h4 { margin: 0 0 20px 0; font-size: 1rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); }
+        .overview-row { display:flex; align-items:center; gap: 15px; margin-bottom: 14px; }
+        .overview-row:last-child { margin-bottom: 0; }
+        .overview-label { width: 150px; flex-shrink:0; font-weight:700; font-size:0.85rem; display:flex; align-items:center; gap:8px; cursor:pointer; }
+        .overview-track { flex:1; height: 10px; background: var(--chart-bg); border-radius: 5px; overflow:hidden; }
+        .overview-fill { height:100%; border-radius:5px; width:0%; transition: width 0.6s cubic-bezier(0.4,0,0.2,1); }
+        .overview-pct { width: 45px; text-align:right; font-family: var(--font-code); font-size: 0.8rem; font-weight:700; }
+
+        /* --- SUBJECT CARDS --- */
+        .card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            border: var(--glass-border);
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+            opacity: 0;
+            animation: slideUp 0.6s ease forwards;
+        }
+
+        .card-header {
+            padding: 20px 30px;
+            border-bottom: var(--glass-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(to right, rgba(255,255,255,0.02), transparent);
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .card-title small { font-size: 0.7rem; color: var(--text-muted); font-weight:600; }
+
+        .card-header-right { display:flex; align-items:center; gap:20px; }
+
+        .progress-mini-wrapper { text-align: right; }
+        .progress-mini-val { font-size: 0.8rem; font-weight: 800; margin-bottom: 5px; color: var(--primary); }
+        .progress-mini-track { width: 100px; height: 6px; background: var(--chart-bg); border-radius: 3px; overflow: hidden; }
+        .progress-mini-fill { height: 100%; background: var(--success); width: 0%; transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
+
+        .task-list { list-style: none; padding: 0; margin: 0; }
+
+        .task-item {
+            padding: 18px 30px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;
+            transition: 0.2s;
+        }
+        .task-item:last-child { border-bottom: none; }
+        .task-item:hover { background: rgba(255,255,255,0.02); }
+        .task-item.hidden-by-search { display: none; }
+
+        /* Checkbox Styling */
+        .cb-wrap {
+            position: relative; width: 24px; height: 24px; flex-shrink: 0; cursor: pointer; margin-top: 3px;
+        }
+        .cb-wrap input { opacity: 0; width: 0; height: 0; }
+        .cb-box {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            border: 2px solid var(--text-muted); border-radius: 6px; transition: 0.3s;
+        }
+        .cb-wrap input:checked ~ .cb-box {
+            background: var(--success); border-color: var(--success); transform: scale(1.1);
+        }
+        .cb-box::after {
+            content: '\f00c'; font-family: 'Font Awesome 6 Free'; font-weight: 900;
+            position: absolute; color: white; font-size: 12px;
+            top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0); transition: 0.2s;
+        }
+        .cb-wrap input:checked ~ .cb-box::after { transform: translate(-50%, -50%) scale(1); }
+
+        .task-body { flex: 1; min-width: 0; }
+        .task-top-row { display:flex; align-items:center; flex-wrap:wrap; gap: 4px 0; }
+
+        .code-tag {
+            font-family: var(--font-code);
+            font-size: 0.75rem;
+            background: rgba(99, 102, 241, 0.15);
+            color: var(--accent);
+            padding: 3px 8px;
+            border-radius: 4px;
+            margin-right: 10px;
+            font-weight: 700;
+            border: 1px solid rgba(99, 102, 241, 0.2);
+        }
+        .week-tag {
+            font-family: var(--font-code);
+            font-size: 0.68rem;
+            color: var(--text-muted);
+            margin-right: 10px;
+            white-space: nowrap;
+        }
+
+        .task-text { font-size: 0.95rem; line-height: 1.6; }
+        .task-item.done .task-text { text-decoration: line-through; opacity: 0.5; color: var(--text-muted); }
+
+        .details-toggle {
+            background:none; border:none; color:var(--text-muted); cursor:pointer;
+            font-size: 0.75rem; margin-left: 8px; font-weight:700; white-space:nowrap;
+        }
+        .details-toggle:hover { color: var(--primary); }
+        .task-details {
+            display:none; margin-top: 10px; padding: 12px 16px; border-radius: 10px;
+            background: rgba(125,125,125,0.06); border: var(--glass-border); font-size: 0.85rem; line-height:1.6;
+        }
+        .task-details.open { display:block; animation: fadeIn 0.2s ease; }
+        .task-details b { color: var(--accent); }
+        .task-details .eq { font-style: italic; color: var(--text-muted); margin-bottom: 6px; }
+
+        mark { background: rgba(56, 189, 248, 0.35); color: inherit; border-radius: 3px; padding: 0 2px; }
+
+        .empty-state { text-align:center; padding: 60px 20px; color: var(--text-muted); }
+        .empty-state i { font-size: 2.5rem; margin-bottom: 15px; opacity: 0.5; }
+
+        /* --- STAR / FOCUS FLAG --- */
+        .star-btn {
+            background:none; border:none; cursor:pointer; color: var(--text-muted);
+            font-size: 0.95rem; margin-left: 6px; flex-shrink:0;
+        }
+        .star-btn:hover { color: var(--warning); }
+        .star-btn.starred { color: var(--warning); }
+        .task-item.starred { background: rgba(245, 158, 11, 0.06); }
+
+        /* --- NOTES --- */
+        .notes-wrap { margin-top: 10px; }
+        .notes-wrap textarea {
+            width: 100%; min-height: 54px; resize: vertical; border-radius: 8px;
+            border: var(--glass-border); background: rgba(125,125,125,0.06); color: var(--text-main);
+            font-family: var(--font-main); font-size: 0.85rem; padding: 8px 10px;
+        }
+        .notes-wrap textarea:focus { outline: 1px solid var(--primary); }
+        .notes-label { font-size: 0.7rem; color: var(--text-muted); font-weight:700; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px; display:block; }
+
+        /* --- TOAST --- */
+        .toast {
+            position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%) translateY(20px);
+            background: var(--bg-card); color: var(--text-main); border: var(--glass-border);
+            padding: 12px 22px; border-radius: 10px; box-shadow: var(--shadow); font-weight:700; font-size:0.9rem;
+            display: flex; align-items:center; gap: 10px; z-index: 999; opacity: 0; pointer-events:none;
+        }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events:auto; }
+        .toast i { color: var(--success); }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* MOBILE */
+        .sidebar-overlay { display:none; }
+        @media (max-width: 900px) {
+            .sidebar {
+                position: fixed; top:0; left:0; height:100%; transform: translateX(-100%);
+            }
+            .sidebar.open { transform: translateX(0); }
+            .close-sidebar { display:block; }
+            .hamburger { display:block; }
+            .header { padding: 15px 18px; }
+            .content { padding: 20px; }
+            .sidebar-overlay {
+                display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:150;
+            }
+            .sidebar-overlay.open { display:block; }
+            .overview-label { width: 110px; font-size: 0.75rem; }
+            .card-header { padding: 16px 18px; }
+            .task-item { padding: 14px 18px; }
+        }
+
+        /* PRINT MODE */
+        @media print {
+            .sidebar, .header, .controls, .theme-panel, .sidebar-overlay, .details-toggle { display: none !important; }
+            .main, .content { padding: 0; margin: 0; height: auto; overflow: visible; background: white; }
+            .card { break-inside: avoid; border: 1px solid #ccc; box-shadow: none; opacity: 1 !important; transform: none !important; background: white; color: black; }
+            .stat-card, .overview-card { border: 1px solid #ccc; color: black; }
+            body { background: white; color: black; }
+            .task-text { color: black; }
+            .cb-box { border-color: black; }
+            .task-details { display: block !important; background: #f8f8f8; color: black; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar(false)"></div>
+
+<nav class="sidebar" id="sidebar">
+    <div class="brand">
+        <span><i class="fas fa-graduation-cap"></i> G11 MASTER</span>
+        <button class="close-sidebar" onclick="toggleSidebar(false)"><i class="fas fa-times"></i></button>
+    </div>
+
+    <div class="sidebar-search">
+        <i class="fas fa-search"></i>
+        <input type="text" id="searchInput" placeholder="Search topics or codes..." oninput="handleSearch()">
+        <i class="fas fa-times-circle search-clear" id="searchClear" onclick="clearSearch()"></i>
+    </div>
+
+    <div class="nav-scroll" id="navScroll">
+        <a class="nav-item active" onclick="scrollToId('dashboard', this)"><span class="nav-left"><i class="fas fa-chart-pie"></i> Dashboard</span></a>
+
+        <div class="nav-header">Sciences</div>
+        <a class="nav-item" onclick="scrollToId('bio', this)"><span class="nav-left"><i class="fas fa-leaf"></i> Biology</span><span class="nav-pct" id="navpct-bio">0%</span></a>
+        <a class="nav-item" onclick="scrollToId('chem', this)"><span class="nav-left"><i class="fas fa-flask"></i> Chemistry</span><span class="nav-pct" id="navpct-chem">0%</span></a>
+        <a class="nav-item" onclick="scrollToId('phy', this)"><span class="nav-left"><i class="fas fa-atom"></i> Physics</span><span class="nav-pct" id="navpct-phy">0%</span></a>
+        <a class="nav-item" onclick="scrollToId('mech', this)"><span class="nav-left"><i class="fas fa-rocket"></i> Mechanics</span><span class="nav-pct" id="navpct-mech">0%</span></a>
+        <a class="nav-item" onclick="scrollToId('es', this)"><span class="nav-left"><i class="fas fa-globe-americas"></i> Earth Science</span><span class="nav-pct" id="navpct-es">0%</span></a>
+
+        <div class="nav-header">Math</div>
+        <a class="nav-item" onclick="scrollToId('math', this)"><span class="nav-left"><i class="fas fa-calculator"></i> Mathematics</span><span class="nav-pct" id="navpct-math">0%</span></a>
+    </div>
+
+    <div class="sidebar-footer">Grade 11 · Semester 1 Curriculum Tracker</div>
+</nav>
+
+<main class="main">
+    <header class="header">
+        <div class="header-left">
+            <button class="hamburger" onclick="toggleSidebar(true)"><i class="fas fa-bars"></i></button>
+            <h3 style="margin:0; font-weight:800;">ACADEMIC TRACKER</h3>
+        </div>
+        <div class="controls">
+            <button class="btn" onclick="toggleFocusFilter()" id="focusBtn" title="Show only starred topics"><i class="fas fa-star"></i> Focus</button>
+            <button class="btn" onclick="toggleThemePanel()"><i class="fas fa-swatchbook"></i> Theme</button>
+            <button class="btn" onclick="shareProgress()"><i class="fas fa-share-nodes"></i> Share</button>
+            <button class="btn" onclick="exportData()"><i class="fas fa-download"></i> Backup</button>
+            <label class="btn" style="cursor: pointer;">
+                <i class="fas fa-upload"></i> Restore
+                <input type="file" id="importFile" style="display:none" onchange="importData(this)">
+            </label>
+            <button class="btn btn-danger-sm" onclick="resetAll()" title="Reset all progress"><i class="fas fa-rotate-left"></i></button>
+            <button class="btn btn-primary" onclick="window.print()"><i class="fas fa-print"></i> Print</button>
+        </div>
+
+        <div class="theme-panel" id="themePanel">
+            <div class="theme-opt" style="background:#0f172a; color:#fff;" onclick="setTheme('midnight')">Midnight (Default)</div>
+            <div class="theme-opt" style="background:#e0eafc; color:#333;" onclick="setTheme('glass')">Glass (Light)</div>
+            <div class="theme-opt" style="background:#000; color:#0f0; border:1px solid #0f0;" onclick="setTheme('cyber')">Cyberpunk</div>
+            <div class="theme-opt" style="background:#4a044e; color:#fff;" onclick="setTheme('sunset')">Sunset</div>
+            <div class="theme-opt" style="background:#052e16; color:#fff;" onclick="setTheme('forest')">Forest</div>
+        </div>
+    </header>
+
+    <div class="content" id="contentArea">
+
+        <div id="dashboard">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-val" id="totalPercent" style="color:var(--accent)">0%</div>
+                    <div class="stat-label">Total Completion</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-val" id="tasksDone" style="color:var(--success)">0</div>
+                    <div class="stat-label">Tasks Completed</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-val" id="tasksLeft" style="color:var(--warning)">0</div>
+                    <div class="stat-label">Tasks Remaining</div>
+                </div>
+            </div>
+
+            <div class="overview-card">
+                <h4>Subject Overview</h4>
+                <div id="overviewList"></div>
+            </div>
+        </div>
+
+        <div id="curriculumContainer"></div>
+        <div class="empty-state" id="emptyState" style="display:none;">
+            <i class="fas fa-magnifying-glass"></i>
+            <div>No topics match your search.</div>
+        </div>
+
+    </div>
+</main>
+
+<div class="toast" id="toast"><i class="fas fa-circle-check"></i> <span id="toastMsg"></span></div>
+
+<script>
+    /* --- CURRICULUM DATA (G11 / Grade 2, Semester 1 — from uploaded PDFs) --- */
+    const curriculum = {
+        bio: { title: "Biology", icon: "fa-leaf", color: "#22c55e", tasks: [
+            {c:"BI.2.01", w:"Wk 1", t:"Evaluate trade-offs of genetically modified food for economic, social & environmental sustainability.",
+             eq:"Should people engineer organisms?",
+             d:"Concepts: GMOs, beneficial traits (disease resistance, drought tolerance), unintended consequences. Skills: evidence-based debate, identify trade-offs, argue a stance with evidence."},
+            {c:"BI.2.02", w:"Wk 2-3", t:"Model the process of genetically modifying organisms and how new genetic material is inherited via mitosis.",
+             eq:"How can GMOs affect our lives?",
+             d:"Concepts: bacterial transformation, plasmids, genes & chromosomes, mitosis. Skills: sterile lab technique, record observations, identify trends, make predictions, develop conclusions."},
+            {c:"BI.2.03", w:"Wk 4-6", t:"Discuss how DNA's chemical & structural properties and replication create new genotypes (structure, replication, gene expression).",
+             eq:"How does DNA's structure enable its function?",
+             d:"Concepts: DNA macromolecule, double helix, nucleotide sequences, semiconservative replication, transcription & translation, RNA types, protein synthesis. Skills: perform DNA isolation, interpret data, develop claims, defend a scientific argument."},
+            {c:"BI.2.04", w:"Wk 7-8", t:"Describe key steps in creating genetic modifications and analyze DNA using electrophoresis.",
+             eq:"Are GMOs the solution?",
+             d:"Concepts: desirable traits, genetic manipulation, DNA electrophoresis, GMO steps (identify/isolate/construct/deliver gene, select transformed organisms), delivery methods (gene gun, bacterial/viral transformation). Skills: evaluate multiple perspectives, argue a position with evidence."},
+            {c:"BI.2.05", w:"Wk 9-10", t:"Compare selective breeding vs. genetic modification to breed a new wheat variety with two desired traits.",
+             eq:"How could genetic modification improve agricultural wealth or food deficiency in Egypt?",
+             d:"Concepts: genes vs. alleles, Punnett squares, phenotype/genotype, selective breeding, Mendel's laws, simple dominance, incomplete dominance, codominance. Skills: collect/record/interpret data, develop conclusions."},
+            {c:"BI.2.06", w:"Wk 11-12", t:"Interpret how sex-linked chromosomes & chromosomal abnormalities affect inheritance; solve sex-linked trait problems.",
+             eq:"Why and how is there variation among living organisms?",
+             d:"Concepts: crossing over, hybrid/dihybrid crosses, haploid/diploid, gametes, fertilization, karyotype, independent segregation, chromosomal abnormalities. Skill: compare & contrast mitosis and meiosis."},
+            {c:"BI.2.07", w:"Wk 13-14", t:"Explain how genomics can help solve sustainability problems and infer genetic inheritance mechanisms from pedigrees.",
+             eq:"How has genomics contributed to our understanding of inheritance mechanisms and genetic disease?",
+             d:"Concepts: genomics, Human Genome Project, genomics & biodiversity/energy/health. Skills: develop & test hypotheses, analyze pedigrees, apply logic and reasoning."}
+        ]},
+        chem: { title: "Chemistry", icon: "fa-flask", color: "#f59e0b", tasks: [
+            {c:"CH.2.01", w:"Wk 1-2", t:"Outline purification of the water supply; describe two ways seawater is converted to drinking water.",
+             eq:"How can you get pure drinkable water?",
+             d:"Concepts: aqueous solutions, solubility & solubility curves, ppm/molarity/molality/normality/mole fraction/TDS, resins, EDTA & ion exchange, electrodialysis, reverse osmosis, dissolved oxygen. Skills: distillation, filtration, chlorination rate calculations, compare treatment methods, qualitative vs quantitative analysis."},
+            {c:"CH.2.02", w:"Wk 3-4", t:"Demonstrate that water is a good solvent, identify dissolved substances and their environmental sources & effect on purity.",
+             eq:"Why do we add ethylene glycol to water in a car's radiator?",
+             d:"Concepts: properties/types of water, density/conductivity/pH/boiling point, colligative properties (boiling-point elevation, freezing-point depression, osmotic pressure). Skills: identify pollutants & their chemical interactions, explain role of beneficial dissolved chemicals."},
+            {c:"CH.2.03", w:"Wk 5-6", t:"Describe characteristic properties of acids and bases, and preparation of salts.",
+             eq:"How do acids, bases and salts affect our lives?",
+             d:"Concepts: acid strength & pH scale, polyprotic acids, bases, acid-base properties of salts/oxides, Lewis acid-base model. Skills: prepare/separate/purify salts (precipitation, titration), solubility rules, solve acid-base problems."},
+            {c:"CH.2.04", w:"Wk 7-8", t:"Describe how concentration, pressure, surface area, temperature & catalysis affect reaction rates via collision theory.",
+             eq:"Why does food spoil outside the fridge on hot days?",
+             d:"Concepts: reaction order, molecularity, rate of reaction, law of mass action. Skill: determine reaction rate by monitoring concentration/gas volume/pH/mass changes."},
+            {c:"CH.2.05", w:"Wk 9-10", t:"Explain how catalysts (transition metals, nanoparticles, enzymes) lower activation energy and increase reaction rates.",
+             eq:"How does the catalyst impact our life?",
+             d:"Concepts: catalyst, activation energy, activated molecules, variables affecting rate. Skill: interpret rate-of-reaction experimental data; design an investigation for a given variable."},
+            {c:"CH.2.06", w:"Wk 11-12", t:"Explain reversible reactions, dynamic equilibrium, and Le Chatelier's Principle; predict shifts under stress.",
+             eq:"How does equilibrium impact our daily life?",
+             d:"Concepts: chemical equilibria, equilibrium graphing & constants (Kc, Kp), Haber & Contact processes. Skills: deduce/calculate equilibrium constant expressions, calculate equilibrium quantities."},
+            {c:"CH.2.07", w:"Wk 13-14", t:"Explain dissociation of strong/weak acids & bases; use the common ion effect to explain buffers (pH, Ka, pKa, Kw, Ksp).",
+             eq:"How could you analyze the data of water treatment?",
+             d:"Concepts: Brønsted-Lowry theory, Ka & pKa, Kw, pH indicators, buffer solutions, solubility product Ksp, common ion effect. Skills: calculate pH/[H+] for acids & bases, explain buffer action (incl. HCO3– in blood), calculate Ksp."}
+        ]},
+        phy: { title: "Physics", icon: "fa-atom", color: "#8b5cf6", tasks: [
+            {c:"PH.2.01", t:"General Law of Gravitation: universal gravitation, gravitational field & inverse square law, satellite launch/orbital/escape velocity.",
+             d:"Skills: determine gravitational force between bodies, deduce factors affecting field intensity, explain g ≈ 9.8 m/s², calculate escape & orbital velocity, compare free-fall acceleration on Earth vs. Moon."},
+            {c:"PH.2.02", t:"Electric Fields & Forces: static electricity, Coulomb's Law, electric field intensity, electrification methods, electroscope, field lines, potential.",
+             d:"Skills: explain attraction/repulsion between charges, identify charge type with an electroscope, compare electrostatic vs. gravitational force, vector-sum electric forces/fields, draw field lines & locate field-free points."},
+            {c:"PH.2.03", t:"Direct Current Circuits I: current, potential difference, resistors, resistivity, EMF, internal resistance, Ohm's Law (ohmic vs. non-ohmic).",
+             d:"Skills: measure voltage/current/resistance, verify Ohm's law with V-I graphs, find EMF & internal resistance from terminal voltage graphs, solve DC circuit problems, relate wire length/area to resistance."},
+            {c:"PH.2.04", t:"Direct Current Circuits II: series & parallel resistor connections, Kirchhoff's current & voltage laws.",
+             d:"Skills: find net resistance of series/parallel combinations, predict current & voltage in a DC circuit, design circuits for max/min total current, use Kirchhoff's laws in multi-loop circuits."},
+            {c:"PH.2.05", t:"Capacitors & Inductors: charging/discharging, energy storage, dielectrics, time constant, series/parallel capacitance.",
+             d:"Skills: explain how capacitance depends on area & separation (series/parallel), calculate charge & voltage at equilibrium, describe i-v characteristics over time, measure/predict RC time constants, calculate stored energy."},
+            {c:"PH.2.06", t:"Magnetic Fields & Forces I: field strength & direction, field lines, magnetic flux, fields due to a wire/loop/solenoid, Ampere's rule.",
+             d:"Skills: draw field-line patterns for poles and current-carrying wires/loops, calculate field strength from a straight wire/loop/solenoid axis, find neutral points between parallel current-carrying wires."},
+            {c:"PH.2.07", t:"Magnetic Fields & Forces II: force on moving charges & current-carrying wires, torque & motors, galvanometers/ammeters/voltmeters.",
+             d:"Skills: determine direction of magnetic force on charges/wires, explain torque on a current loop, explain how a motor & galvanometer work, convert a galvanometer into an ammeter or voltmeter."}
+        ]},
+        mech: { title: "Mechanics", icon: "fa-rocket", color: "#ef4444", tasks: [
+            {c:"ME.2.01", w:"Wk 1-4", t:"Model the force of friction when analyzing applied problems in Newtonian mechanics.",
+             eq:"Why do we need friction in our life?",
+             d:"Concepts: kinetic & static friction, normal force, free-body diagrams, angle of friction, coefficient of static friction. Skills: model friction in force diagrams, measure coefficients via an inclined plane, solve statics problems involving friction."},
+            {c:"ME.2.02", w:"Wk 5-7", t:"Determine the work done on an object by an external force using the scalar (dot) product of vectors.",
+             eq:"Why aren't the cross and vector products equivalent?",
+             d:"Concepts: dot product, vector magnitude, angle between vectors, cross product. Skills: define & prove dot-product properties, use dot/cross product to solve physics & engineering problems."},
+            {c:"ME.2.03", w:"Wk 8-10", t:"Apply the work-energy theorem to analyze the state of an object subject to a variety of forces.",
+             eq:"How does work affect our life?",
+             d:"Concept: Work-Energy Theorem. Skill: calculate work done by various forces and determine the resulting change in kinetic energy."},
+            {c:"ME.2.04", w:"Wk 11-12", t:"Apply the Law of Conservation of Energy to analyze the state of mechanical systems.",
+             eq:"How can you use the law of conservation of energy?",
+             d:"Concepts: conservation of mechanical energy, gravitational/kinetic/spring potential energy. Skills: distinguish & calculate energy storage modes, apply conservation of mechanical energy."},
+            {c:"ME.2.05", w:"Wk 13-14", t:"Apply the concept of power to analyze energy transfer in mechanical systems.",
+             eq:"How does power affect our life?",
+             d:"Concept: Power (P = W/t, P = Fv·cosθ). Skills: determine energy transferred and rate of transfer, define power & its units, solve applied power problems (e.g. max speed vs. constant resisting force)."}
+        ]},
+        es: { title: "Earth Science", icon: "fa-globe-americas", color: "#06b6d4", tasks: [
+            {c:"ES.2.01", w:"Wk 1-2", t:"Analyze how the unusual properties of water contribute to its pathways through Earth's systems (the water cycle).",
+             eq:"How does water determine the nature of Earth?",
+             d:"Concepts: water's capacity to store/release energy, transmit light, expand on freezing, dissolve materials; oceans hold 97% of Earth's water, only 3% is fresh (mostly locked in ice). Skills: measure water's physical properties, model reservoirs and surface/underground flow, graph & manage water supply data."},
+            {c:"ES.2.02", w:"Wk 3-4", t:"Model factors which affect water reservoirs and associated costs.",
+             eq:"How does water determine the nature of communities?",
+             d:"Concept: water flows through & is stored in natural or human-built surface/groundwater reservoirs. Skills: model reservoir factors, collect & compare domestic/industrial/irrigation water-use data, interpret water-analysis data."},
+            {c:"ES.2.03", w:"Wk 5", t:"Investigate human and natural factors that control water resources and options for water conservation.",
+             eq:"How does availability of fresh water impact local areas?",
+             d:"Concepts: transfer of water between stores, surface vs. groundwater withdrawal, management via dams/aqueducts/wells. Skill: use available data to explore water-conservation methods."},
+            {c:"ES.2.04", w:"Wk 6-7", t:"Apply knowledge of pollutant movement into water reservoirs and treatment methods to design innovative fresh-water solutions for Egypt.",
+             eq:"How can water pollution problems be solved in Egypt?",
+             d:"Concepts: organic vs. inorganic pollutants, natural purification (evaporation, condensation, bacterial action), wastewater treatment steps. Skills: model water-treatment processes, model groundwater pollutant movement and the effect of well extraction on it."},
+            {c:"ES.2.05", w:"Wk 8-9", t:"Interpret topographic maps of river systems to create a definition of a drainage basin.",
+             eq:"How does water interact with landforms?",
+             d:"Concepts: river systems as stream networks in the hydrologic cycle, drainage basins & divides. Skills: identify factors affecting stream drainage, make inferences from topographic maps/satellite images, relate river-system form to function."},
+            {c:"ES.2.06", w:"Wk 11-12", t:"Infer how the features of a river system in Egypt have affected the lives of local residents.",
+             eq:"What affects river flow change and how does that affect communities?",
+             d:"Concepts: rivers as agents of erosion & deposition, high- vs low-gradient stream features. Skills: calculate slope & velocity effects, interpret sediment size vs. river velocity, construct a high-gradient stream model."},
+            {c:"ES.2.07", w:"Wk 11-12", t:"Design experiments exploring factors that affect the movement and deposition of loose sediments by wind.",
+             eq:"What is the role of wind-blown materials in the geology and environment of Egypt?",
+             d:"Concepts: wind as a land-forming factor, particle size vs. wind speed. Skills: interpret wind's effect on rocks/sediment, recognize deposition patterns, design a controlled experiment."},
+            {c:"ES.2.08", w:"Wk 13-14", t:"Recognize the major components of soil and identify the basic physical properties of soils.",
+             eq:"Where does soil come from and what is its importance in our lives?",
+             d:"Concepts: soil as the product of erosion/deposition (rock & mineral fragments, clays, organic matter); arid-region soils (caliche, salinized soil). Skill: identify soil components & relate proportions to physical properties."}
+        ]},
+        math: { title: "Mathematics", icon: "fa-calculator", color: "#3b82f6", tasks: [
+            {c:"MA.2.01", t:"Create, interpret and analyze polynomial and absolute value functions that model real-world situations.",
+             eq:"Why is modeling an indispensable tool? Why represent phenomena in multiple ways?",
+             d:"Concepts: polynomials, absolute value, inverse functions, operations with polynomials, roots, degree & graph attributes (turning points, symmetry, even/odd), remainder & factor theorems, Fundamental Theorem of Algebra, Descartes' Rule of Signs. Skills: model with polynomial/absolute-value functions, find roots algebraically, find inverses graphically & algebraically."},
+            {c:"MA.2.02", w:"Wk 5-6", t:"Create, interpret and analyze rational functions that model real-world situations.",
+             d:"Concepts: rational expressions, vertical/horizontal/oblique asymptotes. Skills: factor & simplify rational expressions, sketch rational functions with zeros & asymptotes, model real-world situations."},
+            {c:"MA.2.03", w:"Wk 7-10", t:"Represent, analyze and solve counting problems using permutations and combinations.",
+             eq:"Is order really important? Why predict the future?",
+             d:"Concepts: Fundamental Counting Principle, permutations, combinations, factorials. Skills: solve counting problems with repeated/unordered elements, determine combinations of n objects taken r at a time."},
+            {c:"MA.2.04", w:"Wk 11", t:"Know and apply the Binomial Theorem and Pascal's Triangle.",
+             d:"Concepts: Pascal's Triangle & row sums, Binomial Theorem. Skill: explain the expansion of (x+y)^n for positive integer n."},
+            {c:"MA.2.05", w:"Wk 12-14", t:"Use rules of probability to solve problems and predict behavior, including expected value.",
+             eq:"What is fair? What is luck? What would the world be without risk?",
+             d:"Concepts: probability, likelihood, tree diagrams, independent & conditional events, compound events, expected value. Skills: interpret probability as long-run relative frequency, draw tree diagrams, compute compound-event probabilities, calculate expected values (e.g. heritable traits/diseases)."}
+        ]}
+    };
+
+    /* --- GENERATE UI --- */
+    const container = document.getElementById('curriculumContainer');
+    let delay = 0;
+
+    for (const [key, subject] of Object.entries(curriculum)) {
+        let html = `
+        <div class="card" id="${key}" style="animation-delay: ${delay}s">
+            <div class="card-header">
+                <div class="card-title">
+                    <i class="fas ${subject.icon}" style="color:${subject.color}"></i> ${subject.title}
+                    <small>${subject.tasks.length} topics</small>
+                </div>
+                <div class="card-header-right">
+                    <button class="btn btn-ghost-sm" onclick="markAll('${key}', true)"><i class="fas fa-check-double"></i> All</button>
+                    <button class="btn btn-ghost-sm" onclick="markAll('${key}', false)"><i class="fas fa-eraser"></i> Clear</button>
+                    <div class="progress-mini-wrapper">
+                        <div class="progress-mini-val" id="pct-${key}">0%</div>
+                        <div class="progress-mini-track"><div class="progress-mini-fill" id="bar-${key}" style="background:${subject.color}"></div></div>
+                    </div>
+                </div>
+            </div>
+            <ul class="task-list" id="list-${key}">`;
+
+        subject.tasks.forEach((task, i) => {
+            const id = `${key}-${i}`;
+            const hasDetails = task.d || task.eq;
+            html += `
+            <li class="task-item" id="row-${id}" data-search="${(task.c + ' ' + task.t + ' ' + (task.d||'') + ' ' + (task.eq||'')).toLowerCase().replace(/"/g, '&quot;')}">
+                <label class="cb-wrap">
+                    <input type="checkbox" id="${id}" onchange="toggleTask('${id}', '${key}')">
+                    <div class="cb-box"></div>
+                </label>
+                <div class="task-body">
+                    <div class="task-top-row">
+                        <span class="code-tag">${task.c}</span>
+                        ${task.w ? `<span class="week-tag"><i class="fas fa-calendar-week"></i> ${task.w}</span>` : ''}
+                        <span class="task-text">${task.t}</span>
+                        <button class="star-btn" id="star-${id}" onclick="toggleStar('${id}')" title="Flag for focus"><i class="fas fa-star"></i></button>
+                        ${hasDetails ? `<button class="details-toggle" onclick="toggleDetails('${id}')"><i class="fas fa-chevron-down"></i> Details</button>` : ''}
+                        <button class="details-toggle" onclick="toggleNotes('${id}')"><i class="fas fa-pen"></i> Note</button>
+                    </div>
+                    ${hasDetails ? `<div class="task-details" id="details-${id}">
+                        ${task.eq ? `<div class="eq">"${task.eq}"</div>` : ''}
+                        ${task.d ? `<div>${task.d}</div>` : ''}
+                    </div>` : ''}
+                    <div class="notes-wrap" id="notes-${id}" style="display:none;">
+                        <span class="notes-label">My notes</span>
+                        <textarea placeholder="Add a personal note for this topic..." oninput="saveNote('${id}', this.value)"></textarea>
+                    </div>
+                </div>
+            </li>`;
+        });
+
+        html += `</ul></div>`;
+        container.innerHTML += html;
+        delay += 0.05;
+    }
+
+    /* Build overview rows */
+    const overviewList = document.getElementById('overviewList');
+    Object.entries(curriculum).forEach(([key, subject]) => {
+        overviewList.innerHTML += `
+        <div class="overview-row">
+            <div class="overview-label" onclick="scrollToId('${key}')"><i class="fas ${subject.icon}" style="color:${subject.color}"></i> ${subject.title}</div>
+            <div class="overview-track"><div class="overview-fill" id="ov-${key}" style="background:${subject.color}"></div></div>
+            <div class="overview-pct" id="ovpct-${key}">0%</div>
+        </div>`;
+    });
+
+    /* --- LOGIC --- */
+    function toggleTask(id, key) {
+        const cb = document.getElementById(id);
+        const row = document.getElementById(`row-${id}`);
+
+        if (cb.checked) row.classList.add('done');
+        else row.classList.remove('done');
+
+        updateStats(key);
+        saveToLocal();
+    }
+
+    function toggleDetails(id) {
+        document.getElementById(`details-${id}`).classList.toggle('open');
+    }
+
+    function toggleNotes(id) {
+        const wrap = document.getElementById(`notes-${id}`);
+        wrap.style.display = wrap.style.display === 'none' ? 'block' : 'none';
+    }
+
+    /* --- STAR / FOCUS FLAGS --- */
+    let starred = {};
+    function toggleStar(id) {
+        starred[id] = !starred[id];
+        document.getElementById(`star-${id}`).classList.toggle('starred', starred[id]);
+        document.getElementById(`row-${id}`).classList.toggle('starred', starred[id]);
+        localStorage.setItem('G11_STARS', JSON.stringify(starred));
+        if (document.getElementById('focusBtn').classList.contains('active')) applyFocusFilter();
+    }
+
+    function toggleFocusFilter() {
+        const btn = document.getElementById('focusBtn');
+        btn.classList.toggle('active');
+        if (btn.classList.contains('active')) {
+            btn.style.background = 'var(--warning)';
+            btn.style.color = '#000';
+            btn.style.borderColor = 'var(--warning)';
+            applyFocusFilter();
+        } else {
+            btn.style.background = '';
+            btn.style.color = '';
+            btn.style.borderColor = '';
+            document.querySelectorAll('.task-item').forEach(item => item.classList.remove('hidden-by-search'));
+            Object.keys(curriculum).forEach(key => document.getElementById(key).style.display = '');
+            document.getElementById('dashboard').style.display = '';
+        }
+    }
+
+    function applyFocusFilter() {
+        document.getElementById('dashboard').style.display = 'none';
+        Object.keys(curriculum).forEach(key => {
+            let any = false;
+            document.querySelectorAll(`#list-${key} .task-item`).forEach(item => {
+                const isStarred = !!starred[item.id.replace('row-', '')];
+                item.classList.toggle('hidden-by-search', !isStarred);
+                if (isStarred) any = true;
+            });
+            document.getElementById(key).style.display = any ? '' : 'none';
+        });
+    }
+
+    /* --- NOTES --- */
+    let notesData = {};
+    function saveNote(id, val) {
+        notesData[id] = val;
+        localStorage.setItem('G11_NOTES', JSON.stringify(notesData));
+    }
+
+    function loadStarsAndNotes() {
+        starred = JSON.parse(localStorage.getItem('G11_STARS') || '{}');
+        Object.keys(starred).forEach(id => {
+            if (starred[id]) {
+                const starEl = document.getElementById(`star-${id}`);
+                const rowEl = document.getElementById(`row-${id}`);
+                if (starEl) starEl.classList.add('starred');
+                if (rowEl) rowEl.classList.add('starred');
+            }
+        });
+
+        notesData = JSON.parse(localStorage.getItem('G11_NOTES') || '{}');
+        Object.entries(notesData).forEach(([id, val]) => {
+            if (!val) return;
+            const wrap = document.getElementById(`notes-${id}`);
+            if (wrap) {
+                wrap.querySelector('textarea').value = val;
+                wrap.style.display = 'block';
+            }
+        });
+    }
+
+    /* --- SHARE --- */
+    function shareProgress() {
+        const lines = ['G11 Progress Update:'];
+        Object.entries(curriculum).forEach(([key, subject]) => {
+            const total = subject.tasks.length;
+            const checked = document.querySelectorAll(`#${key} input:checked`).length;
+            const pct = Math.round((checked / total) * 100);
+            lines.push(`${subject.title}: ${pct}% (${checked}/${total})`);
+        });
+        const overall = document.getElementById('totalPercent').innerText;
+        lines.push(`Overall: ${overall}`);
+        const text = lines.join('\n');
+
+        if (navigator.share) {
+            navigator.share({ title: 'G11 Academic Progress', text: text }).catch(() => {});
+        } else {
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('Progress summary copied to clipboard!');
+            }).catch(() => {
+                showToast('Could not copy — try Backup instead.');
+            });
+        }
+    }
+
+    function showToast(msg) {
+        const toast = document.getElementById('toast');
+        document.getElementById('toastMsg').innerText = msg;
+        toast.classList.add('show');
+        clearTimeout(window._toastTimer);
+        window._toastTimer = setTimeout(() => toast.classList.remove('show'), 2800);
+    }
+
+    function markAll(key, state) {
+        document.querySelectorAll(`#list-${key} input[type="checkbox"]`).forEach(cb => {
+            cb.checked = state;
+            const row = document.getElementById(`row-${cb.id}`);
+            if (state) row.classList.add('done'); else row.classList.remove('done');
+        });
+        updateStats(key);
+        saveToLocal();
+    }
+
+    function resetAll() {
+        if (!confirm('Reset ALL progress, notes and flags across every subject? This cannot be undone.')) return;
+        document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+            cb.checked = false;
+            document.getElementById(`row-${cb.id}`).classList.remove('done');
+        });
+        document.querySelectorAll('.star-btn.starred').forEach(el => el.classList.remove('starred'));
+        document.querySelectorAll('.task-item.starred').forEach(el => el.classList.remove('starred'));
+        document.querySelectorAll('.notes-wrap textarea').forEach(el => { el.value = ''; el.closest('.notes-wrap').style.display = 'none'; });
+        starred = {}; notesData = {};
+        localStorage.removeItem('G11_STARS');
+        localStorage.removeItem('G11_NOTES');
+        Object.keys(curriculum).forEach(k => {
+            updateStats(k);
+            sessionStorage.removeItem(`celebrated_${k}`);
+        });
+        saveToLocal();
+        showToast('All progress reset.');
+    }
+
+    function updateStats(key) {
+        const total = curriculum[key].tasks.length;
+        const checked = document.querySelectorAll(`#${key} input:checked`).length;
+        const pct = Math.round((checked / total) * 100);
+
+        document.getElementById(`pct-${key}`).innerText = pct + '%';
+        document.getElementById(`bar-${key}`).style.width = pct + '%';
+        document.getElementById(`ov-${key}`).style.width = pct + '%';
+        document.getElementById(`ovpct-${key}`).innerText = pct + '%';
+        const navEl = document.getElementById(`navpct-${key}`);
+        if (navEl) navEl.innerText = pct + '%';
+
+        if (pct === 100 && sessionStorage.getItem(`celebrated_${key}`) !== 'true') {
+            confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
+            sessionStorage.setItem(`celebrated_${key}`, 'true');
+        }
+
+        calcGlobal();
+    }
+
+    function calcGlobal() {
+        const allBoxes = document.querySelectorAll('input[type="checkbox"]');
+        const allChecked = document.querySelectorAll('input[type="checkbox"]:checked');
+        const globalPct = allBoxes.length ? Math.round((allChecked.length / allBoxes.length) * 100) : 0;
+
+        document.getElementById('totalPercent').innerText = globalPct + '%';
+        document.getElementById('tasksDone').innerText = allChecked.length;
+        document.getElementById('tasksLeft').innerText = allBoxes.length - allChecked.length;
+    }
+
+    /* --- SEARCH / FILTER --- */
+    function handleSearch() {
+        const q = document.getElementById('searchInput').value.trim().toLowerCase();
+        document.getElementById('searchClear').style.display = q ? 'block' : 'none';
+        let anyVisible = false;
+
+        Object.keys(curriculum).forEach(key => {
+            let subjectHasMatch = false;
+            document.querySelectorAll(`#list-${key} .task-item`).forEach(item => {
+                const match = !q || item.getAttribute('data-search').includes(q);
+                item.classList.toggle('hidden-by-search', !match);
+                if (match) { subjectHasMatch = true; anyVisible = true; }
+                highlightText(item, q);
+            });
+            const card = document.getElementById(key);
+            card.style.display = subjectHasMatch ? '' : 'none';
+        });
+
+        document.getElementById('dashboard').style.display = q ? 'none' : '';
+        document.getElementById('emptyState').style.display = (q && !anyVisible) ? '' : 'none';
+    }
+
+    function highlightText(item, q) {
+        const span = item.querySelector('.task-text');
+        if (!span) return;
+        if (!span.dataset.original) span.dataset.original = span.innerHTML;
+        const original = span.dataset.original;
+        if (!q) { span.innerHTML = original; return; }
+        const escaped = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const re = new RegExp(`(${escaped})`, 'ig');
+        span.innerHTML = original.replace(re, '<mark>$1</mark>');
+    }
+
+    function clearSearch() {
+        document.getElementById('searchInput').value = '';
+        handleSearch();
+    }
+
+    /* --- UTILS --- */
+    function scrollToId(id, el) {
+        document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+        document.querySelectorAll('.nav-item').forEach(node => node.classList.remove('active'));
+        if (el) el.classList.add('active');
+        toggleSidebar(false);
+    }
+
+    function toggleSidebar(open) {
+        const sb = document.getElementById('sidebar');
+        const ov = document.getElementById('sidebarOverlay');
+        if (window.innerWidth > 900) return;
+        sb.classList.toggle('open', open);
+        ov.classList.toggle('open', open);
+    }
+
+    function toggleThemePanel() {
+        document.getElementById('themePanel').classList.toggle('open');
+    }
+
+    function setTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        localStorage.setItem('G11_FINAL_THEME', theme);
+        document.getElementById('themePanel').classList.remove('open');
+    }
+
+    /* --- SAVE/LOAD --- */
+    function saveToLocal() {
+        const data = {};
+        document.querySelectorAll('input[type="checkbox"]').forEach(cb => data[cb.id] = cb.checked);
+        localStorage.setItem('G11_FINAL_DATA', JSON.stringify(data));
+    }
+
+    function loadFromLocal() {
+        const theme = localStorage.getItem('G11_FINAL_THEME');
+        if (theme) document.documentElement.setAttribute('data-theme', theme);
+
+        const data = JSON.parse(localStorage.getItem('G11_FINAL_DATA') || 'null');
+        if (data) {
+            for (const [id, val] of Object.entries(data)) {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.checked = val;
+                    if (val) document.getElementById(`row-${id}`).classList.add('done');
+                }
+            }
+        }
+        Object.keys(curriculum).forEach(k => updateStats(k));
+    }
+
+    function exportData() {
+        const data = {
+            theme: localStorage.getItem('G11_FINAL_THEME'),
+            progress: JSON.parse(localStorage.getItem('G11_FINAL_DATA') || '{}'),
+            stars: JSON.parse(localStorage.getItem('G11_STARS') || '{}'),
+            notes: JSON.parse(localStorage.getItem('G11_NOTES') || '{}')
+        };
+        const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'G11_Academic_Backup.json';
+        a.click();
+    }
+
+    function importData(input) {
+        const file = input.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const json = JSON.parse(e.target.result);
+                if (json.theme) setTheme(json.theme);
+                if (json.progress) {
+                    localStorage.setItem('G11_FINAL_DATA', JSON.stringify(json.progress));
+                    loadFromLocal();
+                }
+                if (json.stars) localStorage.setItem('G11_STARS', JSON.stringify(json.stars));
+                if (json.notes) localStorage.setItem('G11_NOTES', JSON.stringify(json.notes));
+                if (json.stars || json.notes) loadStarsAndNotes();
+                showToast('Backup restored!');
+            } catch (err) { showToast('Invalid backup file.'); }
+        };
+        reader.readAsText(file);
+    }
+
+    // Close theme panel when clicking outside
+    document.addEventListener('click', function(e) {
+        const panel = document.getElementById('themePanel');
+        if (panel.classList.contains('open') && !panel.contains(e.target) && !e.target.closest('.controls .btn')) {
+            panel.classList.remove('open');
+        }
+    });
+
+    // Keyboard shortcuts: "/" focuses search, Esc clears it
+    document.addEventListener('keydown', function(e) {
+        if (e.key === '/' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
+            e.preventDefault();
+            document.getElementById('searchInput').focus();
+        } else if (e.key === 'Escape' && document.activeElement.id === 'searchInput') {
+            clearSearch();
+            document.activeElement.blur();
+        }
+    });
+
+    // Init
+    loadFromLocal();
+    loadStarsAndNotes();
+
+</script>
+</body>
+</html>
